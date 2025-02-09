@@ -2,4 +2,4 @@
 	name = Karsten Skogsholm
 	email = kskogsholm@intralytix.com
 [gui]
-	editor = vim
+	editor = nvim
