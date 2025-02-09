@@ -3,3 +3,5 @@
 	email = kskogsholm@intralytix.com
 [gui]
 	editor = nvim
+[core]
+	editor = nvim
