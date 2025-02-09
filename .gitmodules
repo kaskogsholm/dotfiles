@@ -1,0 +1,7 @@
+[submodule "dotbot"]
+	path = dotbot
+	url = https://github.com/anishathalye/dotbot
+	ignore = dirty
+[submodule "neovim_config"]
+	path = neovim_config
+	url = git@github.com:kaskogsholm/neovim_config.git
