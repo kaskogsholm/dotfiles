@@ -1,23 +1,47 @@
-if  [ ! -d /root/.oh-my-zsh ]; then
+# if  [ ! -d /root/.oh-my-zsh ]; then
+#
+# 	echo "No Oh-my-zsh"
+# 	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+# fi	
+#
+# if  [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]; then
+#
+# 	echo "no auto suggest"
+# 	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
+# fi	
+#
+#
+# if  [ ! -d ~/.oh-my-zsh/custom/themes/powerlevel10k ]; then
+#
+# 	echo "no prompt"
+# 	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
+# fi	
+#
+ZSH_BASE=$HOME/dotfiles # Base directory for ZSH configuration
 
-	echo "No Oh-my-zsh"
-	sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
-fi	
-
-if  [ ! -d ~/.oh-my-zsh/custom/plugins/zsh-autosuggestions ]; then
-
-	echo "no auto suggest"
-	git clone https://github.com/zsh-users/zsh-autosuggestions ${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions
-fi	
+source $ZSH_BASE/antigen/antigen.zsh # Load Antigen
 
 
-if  [ ! -d ~/.oh-my-zsh/custom/themes/powerlevel10k ]; then
+antigen use oh-my-zsh # Yes, I want to use Oh My ZSH
 
-	echo "no prompt"
-	git clone --depth=1 https://github.com/romkatv/powerlevel10k.git ${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}/themes/powerlevel10k
-fi	
+# Terminal stuff
+antigen bundle git
+antigen bundle zsh-users/zsh-syntax-highlighting
+antigen bundle zsh-users/zsh-history-substring-search
+antigen bundle zsh-users/zsh-autosuggestions
+antigen bundle z
 
+# Node stuff
+antigen bundle node
+antigen bundle npm
+antigen bundle pyenv
+antigen bundle virtualenv
 
+# Set the theme
+antigen theme romkatv/powerlevel10k
+
+# And lastly, apply the Antigen stuff
+antigen apply
 
 
 # Enable Powerlevel10k instant prompt. Should stay close to the top of ~/.zshrc.
@@ -28,8 +52,8 @@ if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]
 fi
 # If you come from bash you might have to change your $PATH.
 #export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
-export VISUAL=nvim
-export EDITOR=nvim
+export VISUAL='nvim'
+export EDITOR='nvim'
 export DEFAULT_USER="$(whoami)"
 # Path to your Oh My Zsh installation.
 export ZSH="$HOME/.oh-my-zsh"
@@ -38,7 +62,7 @@ bindkey '^I^I' autosuggest-accept
 # load a random theme each time Oh My Zsh is loaded, in which case,
 # to know which specific one was loaded, run: echo $RANDOM_THEME
 # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-ZSH_THEME="powerlevel10k/powerlevel10k"
+# ZSH_THEME="powerlevel10k/powerlevel10k"
 
 # Set list of themes to pick from when loading at random
 # Setting this variable when ZSH_THEME=random will cause zsh to load
@@ -100,9 +124,9 @@ ZSH_THEME="powerlevel10k/powerlevel10k"
 # Custom plugins may be added to $ZSH_CUSTOM/plugins/
 # Example format: plugins=(rails git textmate ruby lighthouse)
 # Add wisely, as too many plugins slow down shell startup.
-plugins=(git pyenv virtualenv z zsh-autosuggestions)
+# plugins=(git pyenv virtualenv z zsh-autosuggestions)
 
-source $ZSH/oh-my-zsh.sh
+# source $ZSH/oh-my-zsh.sh
 
 # User configuration
 

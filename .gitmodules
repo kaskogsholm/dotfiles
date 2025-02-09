@@ -5,3 +5,6 @@
 [submodule "neovim_config"]
 	path = neovim_config
 	url = git@github.com:kaskogsholm/neovim_config.git
+[submodule "antigen"]
+	path = antigen
+	url = https://github.com/zsh-users/antigen.git
