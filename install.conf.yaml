@@ -13,3 +13,8 @@
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
+  - [fzf/install --all]
+  - [curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y]
+  - [. "$HOME/.cargo/env"]
+  - [rustup update]
+  - [cargo install --locked yazi-fm yazi-cli]
