@@ -180,3 +180,6 @@ function y() {
 
 export PATH="$PATH:/$HOME/.cargo/bin"
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# opencode
+export PATH=/home/kskogsholm/.opencode/bin:$PATH
