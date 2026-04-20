@@ -10,6 +10,7 @@
     ~/.gitconfig: .gitconfig
     ~/.p10k.zsh: .p10k.zsh
     ~/.config/nvim: neovim_config
+    ~/.config/wezterm: wezterm
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
