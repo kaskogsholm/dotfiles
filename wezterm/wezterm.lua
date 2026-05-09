@@ -6,6 +6,16 @@ local workspace_switcher = wezterm.plugin.require("https://github.com/MLFlexer/s
 local config = wezterm.config_builder()
 config:set_strict_mode(true)
 
+local path_separator = package.config:sub(1, 1)
+
+local function extend_path(base_path, path_to_append)
+	if base_path:sub(-1) == "/" or base_path:sub(-1) == "\\" then
+		return base_path .. path_to_append
+	end
+
+	return base_path .. path_separator .. path_to_append
+end
+
 local is_windows = wezterm.target_triple:find("windows") ~= nil
 
 config.color_scheme = "Argonaut"
@@ -38,7 +48,7 @@ config.font = wezterm.font_with_fallback({
 config.background = {
 	{
 		source = {
-			File = "lorenz.png",
+			File = extend_path(wezterm.config_dir, "lorenz.png"),
 		},
 		repeat_x = "Mirror",
 		hsb = { brightness = 0.3 },
