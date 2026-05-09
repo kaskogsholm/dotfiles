@@ -11,6 +11,7 @@
     ~/.p10k.zsh: .p10k.zsh
     ~/.config/nvim: neovim_config
     ~/.config/wezterm: wezterm
+    ~/.config/yazi: yazi
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]
