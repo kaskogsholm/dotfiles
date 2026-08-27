@@ -1,16 +1,16 @@
 # Glove80 Layout
 
 This configuration starts from MoErgo's factory Glove80 ZMK layout and makes
-three deliberate changes:
+these deliberate behavior changes:
 
 - The unused left `Layer` thumb momentarily activates `Symbols`.
 - `Magic+P` enters a direct-key `Gaming` layer.
 - In Gaming, the left `Layer` thumb is Space and tapping `Magic` returns to Base.
-- Base uses very dim solid cobalt lighting; Symbols doubles its brightness.
-- Gaming uses the slowest breathing effect in burnt orange.
+- Base and Symbols use very dim solid cobalt lighting.
+- Gaming uses dim solid red lighting.
 
 ZMK persists RGB state across firmware updates. If Base remains dark after the
-first flash, hold and release `Symbols` once to initialize the cobalt profile.
+first flash, enter and exit Gaming once to initialize the cobalt profile.
 
 Base and the remaining thumb bindings retain their factory behavior. Every
 thumb key on Symbols is transparent.
