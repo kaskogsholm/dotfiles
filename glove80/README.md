@@ -9,6 +9,9 @@ three deliberate changes:
 - Base uses very dim solid cobalt lighting; Symbols doubles its brightness.
 - Gaming uses the slowest breathing effect in burnt orange.
 
+ZMK persists RGB state across firmware updates. If Base remains dark after the
+first flash, hold and release `Symbols` once to initialize the cobalt profile.
+
 Base and the remaining thumb bindings retain their factory behavior. Every
 thumb key on Symbols is transparent.
 
