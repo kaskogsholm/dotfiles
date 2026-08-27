@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="760" viewBox="0 0 1400 760">
+  <defs>
+    <style>
+      .bg { fill: #111318; }
+      .title { fill: #f5f2e8; font: 700 42px sans-serif; }
+      .subtitle { fill: #a8b0bd; font: 20px sans-serif; }
+      .key { fill: #242832; stroke: #454c5b; stroke-width: 2; rx: 13; }
+      .operator { fill: #46381f; stroke: #e1a93b; }
+      .delimiter { fill: #173d43; stroke: #45becb; }
+      .quote { fill: #472b43; stroke: #d47ac3; }
+      .syntax { fill: #273d29; stroke: #74b87a; }
+      .physical { fill: #929bab; font: 14px sans-serif; }
+      .symbol { fill: #fffaf0; font: 700 32px monospace; text-anchor: middle; dominant-baseline: middle; }
+      .hint { fill: #c5ccd7; font: 17px sans-serif; }
+      .thumb { fill: #72521d; stroke: #f0b84e; stroke-width: 3; }
+      .thumbtext { fill: #fff5d8; font: 700 22px sans-serif; text-anchor: middle; dominant-baseline: middle; }
+    </style>
+  </defs>
+  <rect class="bg" width="1400" height="760"/>
+  <text class="title" x="700" y="70" text-anchor="middle">Glove80 Symbols</text>
+  <text class="subtitle" x="700" y="105" text-anchor="middle">Hold the left thumb Layer key; release to return to Base</text>
+
+  <!-- Left hand -->
+  <g transform="translate(100 175)">
+    <text class="subtitle" x="260" y="-30" text-anchor="middle">LEFT HAND</text>
+    <g transform="translate(0 0)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">Q</text></g>
+    <g transform="translate(104 0)"><rect class="key quote" width="92" height="82"/><text class="physical" x="10" y="20">W</text><text class="symbol" x="46" y="47">&quot;</text></g>
+    <g transform="translate(208 0)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">E</text><text class="symbol" x="46" y="47">*</text></g>
+    <g transform="translate(312 0)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">R</text><text class="symbol" x="46" y="47">&amp;</text></g>
+    <g transform="translate(416 0)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">T</text><text class="symbol" x="46" y="47">|</text></g>
+
+    <g transform="translate(0 94)"><rect class="key syntax" width="92" height="82"/><text class="physical" x="10" y="20">A</text><text class="symbol" x="46" y="47">!</text></g>
+    <g transform="translate(104 94)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">S</text><text class="symbol" x="46" y="47">-</text></g>
+    <g transform="translate(208 94)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">D</text><text class="symbol" x="46" y="47">+</text></g>
+    <g transform="translate(312 94)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">F</text><text class="symbol" x="46" y="47">=</text></g>
+    <g transform="translate(416 94)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">G</text><text class="symbol" x="46" y="47">\</text></g>
+
+    <g transform="translate(0 188)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">Z</text></g>
+    <g transform="translate(104 188)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">X</text></g>
+    <g transform="translate(208 188)"><rect class="key delimiter" width="92" height="82"/><text class="physical" x="10" y="20">C</text><text class="symbol" x="46" y="47">[</text></g>
+    <g transform="translate(312 188)"><rect class="key delimiter" width="92" height="82"/><text class="physical" x="10" y="20">V</text><text class="symbol" x="46" y="47">]</text></g>
+    <g transform="translate(416 188)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">B</text></g>
+  </g>
+
+  <!-- Right hand -->
+  <g transform="translate(780 175)">
+    <text class="subtitle" x="260" y="-30" text-anchor="middle">RIGHT HAND</text>
+    <g transform="translate(0 0)"><rect class="key syntax" width="92" height="82"/><text class="physical" x="10" y="20">Y</text><text class="symbol" x="46" y="47">^</text></g>
+    <g transform="translate(104 0)"><rect class="key delimiter" width="92" height="82"/><text class="physical" x="10" y="20">U</text><text class="symbol" x="46" y="47">{</text></g>
+    <g transform="translate(208 0)"><rect class="key delimiter" width="92" height="82"/><text class="physical" x="10" y="20">I</text><text class="symbol" x="46" y="47">}</text></g>
+    <g transform="translate(312 0)"><rect class="key quote" width="92" height="82"/><text class="physical" x="10" y="20">O</text><text class="symbol" x="46" y="47">'</text></g>
+    <g transform="translate(416 0)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">P</text></g>
+
+    <g transform="translate(0 94)"><rect class="key syntax" width="92" height="82"/><text class="physical" x="10" y="20">H</text><text class="symbol" x="46" y="47">#</text></g>
+    <g transform="translate(104 94)"><rect class="key delimiter" width="92" height="82"/><text class="physical" x="10" y="20">J</text><text class="symbol" x="46" y="47">(</text></g>
+    <g transform="translate(208 94)"><rect class="key delimiter" width="92" height="82"/><text class="physical" x="10" y="20">K</text><text class="symbol" x="46" y="47">)</text></g>
+    <g transform="translate(312 94)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">L</text><text class="symbol" x="46" y="47">_</text></g>
+    <g transform="translate(416 94)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">;</text></g>
+
+    <g transform="translate(0 188)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">N</text></g>
+    <g transform="translate(104 188)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">M</text></g>
+    <g transform="translate(208 188)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">,</text><text class="symbol" x="46" y="47">&lt;</text></g>
+    <g transform="translate(312 188)"><rect class="key operator" width="92" height="82"/><text class="physical" x="10" y="20">.</text><text class="symbol" x="46" y="47">&gt;</text></g>
+    <g transform="translate(416 188)"><rect class="key" width="92" height="82"/><text class="physical" x="10" y="20">/</text></g>
+  </g>
+
+  <g transform="translate(595 530) rotate(8)">
+    <rect class="thumb" width="210" height="90" rx="20"/>
+    <text class="thumbtext" x="105" y="35">HOLD LAYER</text>
+    <text class="thumbtext" x="105" y="65">left thumb</text>
+  </g>
+
+  <text class="hint" x="700" y="675" text-anchor="middle">Operators roll inward:  +=   -=   !=    •    Delimiters:  ()   {}   []</text>
+  <text class="hint" x="700" y="710" text-anchor="middle">Unmarked keys and all thumb keys retain their Base behavior.</text>
+</svg>

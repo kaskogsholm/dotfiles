@@ -12,6 +12,7 @@
     ~/.config/nvim: neovim_config
     ~/.config/wezterm: wezterm
     ~/.config/yazi: yazi
+    ~/.config/glove80: glove80
 
 - shell:
   - [git submodule update --init --recursive, Installing submodules]

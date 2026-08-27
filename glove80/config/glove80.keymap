@@ -1,0 +1,121 @@
+/*
+ * Glove80 layout based on MoErgo's factory configuration.
+ * SPDX-License-Identifier: MIT
+ */
+
+#include <behaviors.dtsi>
+#include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
+#include <dt-bindings/zmk/outputs.h>
+#include <dt-bindings/zmk/rgb.h>
+
+#define DEFAULT 0
+#define SYMBOLS 1
+#define MAGIC 2
+#define GAMING 3
+
+/ {
+    behaviors {
+        magic: magic_hold_tap {
+            compatible = "zmk,behavior-hold-tap";
+            label = "MAGIC_HOLD_TAP";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&mo>, <&rgb_ug_status_macro>;
+        };
+    };
+
+    macros {
+        rgb_ug_status_macro: rgb_ug_status_macro_0 {
+            label = "RGB_UG_STATUS";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&rgb_ug RGB_STATUS>;
+        };
+
+        bt_0: bt_profile_macro_0 {
+            label = "BT_0";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&out OUT_BLE>, <&bt BT_SEL 0>;
+        };
+
+        bt_1: bt_profile_macro_1 {
+            label = "BT_1";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&out OUT_BLE>, <&bt BT_SEL 1>;
+        };
+
+        bt_2: bt_profile_macro_2 {
+            label = "BT_2";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&out OUT_BLE>, <&bt BT_SEL 2>;
+        };
+
+        bt_3: bt_profile_macro_3 {
+            label = "BT_3";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&out OUT_BLE>, <&bt BT_SEL 3>;
+        };
+    };
+
+    keymap {
+        compatible = "zmk,keymap";
+
+        default_layer {
+            // Factory Base, except the unused Lower key now momentarily activates Symbols.
+            bindings = <
+            &kp F1         &kp F2   &kp F3      &kp F4      &kp F5                                                                                         &kp F6  &kp F7      &kp F8      &kp F9      &kp F10
+            &kp EQUAL      &kp N1   &kp N2      &kp N3      &kp N4      &kp N5                                                                     &kp N6  &kp N7  &kp N8      &kp N9      &kp N0      &kp MINUS
+            &kp TAB        &kp Q    &kp W       &kp E       &kp R       &kp T                                                                      &kp Y   &kp U   &kp I       &kp O       &kp P       &kp BSLH
+            &kp ESC        &kp A    &kp S       &kp D       &kp F       &kp G                                                                      &kp H   &kp J   &kp K       &kp L       &kp SEMI    &kp SQT
+            &kp GRAVE      &kp Z    &kp X       &kp C       &kp V       &kp B   &kp LSHFT   &kp LCTRL   &mo SYMBOLS &kp LGUI  &kp RCTRL &kp RSHFT   &kp N   &kp M   &kp COMMA   &kp DOT     &kp FSLH    &kp PG_UP
+            &magic MAGIC 0 &kp HOME &kp END     &kp LEFT    &kp RIGHT           &kp BSPC    &kp DEL     &kp LALT      &kp RALT  &kp RET   &kp SPACE           &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp PG_DN
+            >;
+        };
+
+        symbols_layer {
+            // Hold the left Layer thumb. Unlisted keys and every thumb pass through Base.
+            //
+            //       W:"  E:*  R:&  T:|       Y:^  U:{  I:}  O:'
+            // A:!   S:-  D:+  F:=  G:\\      H:#  J:(  K:)  L:_
+            //            C:[  V:]                 ,:<  .:>
+            bindings = <
+            &trans          &trans       &trans       &trans       &trans                                                                                          &trans       &trans       &trans       &trans       &trans
+            &trans          &trans       &trans       &trans       &trans       &trans                                                                    &trans       &trans       &trans       &trans       &trans       &trans
+            &trans          &trans       &kp DQT      &kp ASTERISK &kp AMPS     &kp PIPE                                                                   &kp CARET    &kp LBRC    &kp RBRC    &kp SQT     &trans       &trans
+            &trans          &kp EXCL     &kp MINUS    &kp PLUS     &kp EQUAL    &kp BSLH                                                                   &kp HASH     &kp LPAR    &kp RPAR    &kp UNDER   &trans       &trans
+            &trans          &trans       &trans       &kp LBKT     &kp RBKT     &trans    &trans &trans &trans &trans &trans &trans                         &trans       &trans       &kp LT      &kp GT      &trans       &trans
+            &trans          &trans       &trans       &trans       &trans                 &trans &trans &trans &trans &trans &trans                                      &trans       &trans       &trans       &trans       &trans
+            >;
+        };
+
+        magic_layer {
+            // Factory Magic controls. Magic+P enters the timing-free Gaming layer.
+            bindings = <
+            &bt BT_CLR        &none               &none           &none           &none                                                                                                           &none      &none      &none      &none      &bt BT_CLR_ALL
+            &none             &none               &none           &none           &none           &none                                                                                &none      &none      &none      &none      &none      &none
+            &none             &rgb_ug RGB_SPI     &rgb_ug RGB_SAI &rgb_ug RGB_HUI &rgb_ug RGB_BRI &rgb_ug RGB_TOG                                                                      &none      &none      &none      &none      &to GAMING &none
+            &bootloader       &rgb_ug RGB_SPD     &rgb_ug RGB_SAD &rgb_ug RGB_HUD &rgb_ug RGB_BRD &rgb_ug RGB_EFF                                                                      &none      &none      &none      &none      &none      &bootloader
+            &sys_reset        &none               &none           &none           &none           &none           &bt_2     &bt_3     &none      &none      &none      &none               &none      &none      &none      &none      &none      &sys_reset
+            &none             &none               &none           &none           &none                           &bt_0     &bt_1     &out OUT_USB &none      &none      &none                          &none      &none      &none      &none      &none
+            >;
+        };
+
+        gaming_layer {
+            // Direct bindings only: no layer taps or hold-taps. Tap Magic to return to Base.
+            bindings = <
+            &kp F1       &kp F2   &kp F3    &kp F4    &kp F5                                                                                   &kp F6  &kp F7    &kp F8    &kp F9    &kp F10
+            &kp EQUAL    &kp N1   &kp N2    &kp N3    &kp N4    &kp N5                                                               &kp N6  &kp N7  &kp N8    &kp N9    &kp N0    &kp MINUS
+            &kp TAB      &kp Q    &kp W     &kp E     &kp R     &kp T                                                                &kp Y   &kp U   &kp I     &kp O     &kp P     &kp BSLH
+            &kp ESC      &kp A    &kp S     &kp D     &kp F     &kp G                                                                &kp H   &kp J   &kp K     &kp L     &kp SEMI  &kp SQT
+            &kp GRAVE    &kp Z    &kp X     &kp C     &kp V     &kp B   &kp LSHFT &kp LCTRL &kp SPACE &kp LGUI &kp RCTRL &kp RSHFT   &kp N   &kp M   &kp COMMA &kp DOT   &kp FSLH  &kp PG_UP
+            &to DEFAULT  &kp HOME &kp END   &kp LEFT  &kp RIGHT         &kp BSPC  &kp DEL   &kp LALT  &kp RALT &kp RET   &kp SPACE           &kp UP  &kp DOWN  &kp LBKT  &kp RBKT  &kp PG_DN
+            >;
+        };
+    };
+};
