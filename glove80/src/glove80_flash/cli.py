@@ -26,7 +26,7 @@ class FlashError(Exception):
 class DeviceBackend(Protocol):
     def find_device(self, label: str) -> str | None: ...
 
-    async def wait_for_device(self, label: str) -> str: ...
+    async def wait_for_device(self, labels: set[str]) -> tuple[str, str]: ...
 
     async def find_mountpoint(self, device: str) -> Path | None: ...
 
@@ -52,12 +52,13 @@ class UdevBackend:
                 return device.device_node
         return None
 
-    async def wait_for_device(self, label: str) -> str:
+    async def wait_for_device(self, labels: set[str]) -> tuple[str, str]:
         while True:
             await trio.lowlevel.wait_readable(self.monitor.fileno())
             while device := self.monitor.poll(timeout=0):
-                if self._label(device) == label and device.device_node:
-                    return device.device_node
+                label = self._label(device)
+                if label in labels and device.device_node:
+                    return label, device.device_node
 
     async def find_mountpoint(self, device: str) -> Path | None:
         process = await trio.run_process(
@@ -98,7 +99,7 @@ class UdevBackend:
 
 @dataclass(frozen=True)
 class Options:
-    side: str
+    side: str | None
     firmware: Path
     timeout: float
 
@@ -114,7 +115,12 @@ def parse_args(argv: list[str] | None = None) -> Options:
             "requiring keyboard input."
         )
     )
-    parser.add_argument("side", choices=BOOT_LABELS)
+    parser.add_argument(
+        "side",
+        choices=BOOT_LABELS,
+        nargs="?",
+        help="flash only one half (default: wait for both)",
+    )
     parser.add_argument(
         "--firmware",
         type=Path,
@@ -141,28 +147,13 @@ def sha256(path: Path) -> str:
     return digest.hexdigest()
 
 
-async def flash(options: Options, backend: DeviceBackend) -> None:
-    firmware = options.firmware
-    if not firmware.is_file():
-        raise FlashError(f"Firmware is not readable: {firmware}")
-    if firmware.suffix.lower() != ".uf2":
-        raise FlashError(f"Firmware must have a .uf2 extension: {firmware}")
-    if shutil.which("lsblk") is None or shutil.which("udisksctl") is None:
-        raise FlashError("Required commands are unavailable: lsblk and udisksctl")
-
-    label = BOOT_LABELS[options.side]
-    checksum = await trio.to_thread.run_sync(sha256, firmware)
-    print(f"Firmware: {firmware}")
-    print(f"SHA-256: {checksum}")
-    print(f"Waiting up to {options.timeout:g} seconds for {label}...")
-
-    device = backend.find_device(label)
-    if device is None:
-        with trio.move_on_after(options.timeout) as timeout_scope:
-            device = await backend.wait_for_device(label)
-        if timeout_scope.cancelled_caught:
-            raise FlashError(f"Timed out waiting for {label}. No files were copied.")
-
+async def flash_device(
+    firmware: Path,
+    side: str,
+    label: str,
+    device: str,
+    backend: DeviceBackend,
+) -> None:
     print(f"Found {label} on {device}.")
     mountpoint = await backend.find_mountpoint(device)
     if mountpoint is None:
@@ -188,9 +179,52 @@ async def flash(options: Options, backend: DeviceBackend) -> None:
         raise FlashError(f"Firmware copy failed: {error}") from error
 
     print(
-        f"Copy completed. The {options.side} half should reboot and the boot "
+        f"Copy completed. The {side} half should reboot and the boot "
         "drive should disappear."
     )
+
+
+async def flash(options: Options, backend: DeviceBackend) -> None:
+    firmware = options.firmware
+    if not firmware.is_file():
+        raise FlashError(f"Firmware is not readable: {firmware}")
+    if firmware.suffix.lower() != ".uf2":
+        raise FlashError(f"Firmware must have a .uf2 extension: {firmware}")
+    missing = [
+        command for command in ("lsblk", "udisksctl") if not shutil.which(command)
+    ]
+    if missing:
+        raise FlashError(f"Required command unavailable: {', '.join(missing)}")
+
+    sides = [options.side] if options.side else ["right", "left"]
+    pending = {BOOT_LABELS[side]: side for side in sides}
+    checksum = await trio.to_thread.run_sync(sha256, firmware)
+    print(f"Firmware: {firmware}")
+    print(f"SHA-256: {checksum}")
+    print(f"Waiting up to {options.timeout:g} seconds for {' and '.join(pending)}...")
+
+    with trio.move_on_after(options.timeout) as timeout_scope:
+        while pending:
+            found = next(
+                (
+                    (label, device)
+                    for label in pending
+                    if (device := backend.find_device(label)) is not None
+                ),
+                None,
+            )
+            if found is None:
+                found = await backend.wait_for_device(set(pending))
+
+            label, device = found
+            side = pending.pop(label)
+            await flash_device(firmware, side, label, device, backend)
+            if pending:
+                print(f"Still waiting for {' and '.join(pending)}...")
+
+    if timeout_scope.cancelled_caught:
+        waiting_for = " and ".join(pending)
+        raise FlashError(f"Timed out waiting for {waiting_for}.")
 
 
 async def async_main(options: Options) -> None:

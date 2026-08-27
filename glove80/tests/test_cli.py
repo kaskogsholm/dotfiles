@@ -12,28 +12,33 @@ from glove80_flash.cli import FlashError, Options, flash
 class FakeBackend:
     def __init__(
         self,
-        mountpoint: Path | None,
-        *,
-        connected: bool = True,
-        mount_target: Path | None = None,
+        devices: dict[str, str],
+        mountpoints: dict[str, Path | None],
+        arrivals: list[tuple[str, str]] | None = None,
+        mount_targets: dict[str, Path] | None = None,
     ) -> None:
-        self.mountpoint = mountpoint
-        self.connected = connected
-        self.mount_target = mount_target
-        self.mounted = False
+        self.devices = devices
+        self.mountpoints = mountpoints
+        self.arrivals = arrivals or []
+        self.mount_targets = mount_targets or {}
+        self.mounted: list[str] = []
 
     def find_device(self, label: str) -> str | None:
-        return "/dev/mock" if self.connected else None
+        return self.devices.pop(label, None)
 
-    async def wait_for_device(self, label: str) -> str:
+    async def wait_for_device(self, labels: set[str]) -> tuple[str, str]:
+        for index, (label, device) in enumerate(self.arrivals):
+            if label in labels:
+                self.arrivals.pop(index)
+                return label, device
         await trio.sleep_forever()
 
     async def find_mountpoint(self, device: str) -> Path | None:
-        return self.mountpoint
+        return self.mountpoints[device]
 
     async def mount(self, device: str) -> None:
-        self.mounted = True
-        self.mountpoint = self.mount_target
+        self.mounted.append(device)
+        self.mountpoints[device] = self.mount_targets[device]
 
 
 class FlashTests(unittest.TestCase):
@@ -44,7 +49,9 @@ class FlashTests(unittest.TestCase):
             firmware.write_bytes(b"test firmware")
             mountpoint = root / "mount"
             mountpoint.mkdir()
-            backend = FakeBackend(mountpoint)
+            backend = FakeBackend(
+                {"GLV80RHBOOT": "/dev/right"}, {"/dev/right": mountpoint}
+            )
 
             trio.run(flash, Options("right", firmware, 1), backend)
 
@@ -60,11 +67,15 @@ class FlashTests(unittest.TestCase):
             firmware.write_bytes(b"test firmware")
             mountpoint = root / "mount"
             mountpoint.mkdir()
-            backend = FakeBackend(None, mount_target=mountpoint)
+            backend = FakeBackend(
+                {"GLV80LHBOOT": "/dev/left"},
+                {"/dev/left": None},
+                mount_targets={"/dev/left": mountpoint},
+            )
 
             trio.run(flash, Options("left", firmware, 1), backend)
 
-            self.assertTrue(backend.mounted)
+            self.assertEqual(backend.mounted, ["/dev/left"])
             self.assertEqual(
                 (mountpoint / "glove80.uf2").read_bytes(), b"test firmware"
             )
@@ -74,10 +85,34 @@ class FlashTests(unittest.TestCase):
             root = Path(directory)
             firmware = root / "input.uf2"
             firmware.write_bytes(b"test firmware")
-            backend = FakeBackend(root, connected=False)
+            backend = FakeBackend({}, {})
 
             with self.assertRaisesRegex(FlashError, "Timed out"):
                 trio.run(flash, Options("left", firmware, 0.01), backend)
+
+    def test_waits_for_both_halves_by_default(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            firmware = root / "input.uf2"
+            firmware.write_bytes(b"test firmware")
+            right_mount = root / "right"
+            left_mount = root / "left"
+            right_mount.mkdir()
+            left_mount.mkdir()
+            backend = FakeBackend(
+                {"GLV80RHBOOT": "/dev/right"},
+                {"/dev/right": right_mount, "/dev/left": left_mount},
+                arrivals=[("GLV80LHBOOT", "/dev/left")],
+            )
+
+            trio.run(flash, Options(None, firmware, 1), backend)
+
+            self.assertEqual(
+                (right_mount / "glove80.uf2").read_bytes(), b"test firmware"
+            )
+            self.assertEqual(
+                (left_mount / "glove80.uf2").read_bytes(), b"test firmware"
+            )
 
 
 if __name__ == "__main__":

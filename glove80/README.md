@@ -52,15 +52,17 @@ Build and retain both the factory firmware and this custom firmware before
 flashing. The `glove80-flash` watcher lets you start each copy before putting a
 half into bootloader mode, so no keyboard input is needed during the flash.
 
-Flash the right half first:
+Start the watcher for both halves:
+
+```sh
+glove80-flash
+```
+
+Enter the right bootloader first. After it finishes, switch the right half off
+and enter the left bootloader. To flash only one half, pass it explicitly:
 
 ```sh
 glove80-flash right
-```
-
-Then switch off the right half, and flash the left:
-
-```sh
 glove80-flash left
 ```
 
@@ -77,8 +79,7 @@ does not poll, and it never uses `sudo` or `dd`.
 To restore a factory image, use the same process with an explicit file:
 
 ```sh
-glove80-flash --firmware ~/Downloads/factory-default.uf2 right
-glove80-flash --firmware ~/Downloads/factory-default.uf2 left
+glove80-flash --firmware ~/Downloads/factory-default.uf2
 ```
 
 Manual equivalent:
