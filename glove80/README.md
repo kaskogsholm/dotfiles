@@ -40,7 +40,9 @@ With Docker installed:
 ./build.sh
 ```
 
-The generated `glove80.uf2` is intentionally ignored by Git.
+Successful builds from `main` are published as immutable GitHub releases with
+a SHA-256 checksum. `glove80-flash` automatically downloads, verifies, and
+caches the latest release; no manual Actions artifact handling is required.
 
 Dotbot installs the flashing utility as an editable `pipx` package, so the
 `glove80-flash` command always runs the version in this directory.
@@ -75,9 +77,10 @@ minutes for the exact bootloader label. While it is waiting:
 - Right: hold physical `I + PgDn` and switch the right half on.
 - Left: hold physical `Magic + E` and switch the left half on.
 
-The Trio-based watcher listens to udev's netlink file descriptor, mounts the
-drive if required, copies the firmware, syncs the file system, and exits. It
-does not poll, and it never uses `sudo` or `dd`.
+The Trio-based watcher checks the latest release, listens to udev's netlink file
+descriptor, mounts each drive if required, copies the firmware, syncs the file
+system, and exits. It does not poll, and it never uses `sudo` or `dd`. If GitHub
+is unavailable, it uses the last verified cached firmware.
 
 To restore a factory image, use the same process with an explicit file:
 

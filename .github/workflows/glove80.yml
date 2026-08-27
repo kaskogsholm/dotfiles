@@ -14,6 +14,8 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v4
       - uses: actions/checkout@v4
@@ -29,8 +31,25 @@ jobs:
       - name: Build combined firmware
         run: nix-build glove80/config -o glove80/result
       - name: Collect firmware
-        run: cp glove80/result/glove80.uf2 glove80/glove80.uf2
+        run: |
+          cp glove80/result/glove80.uf2 glove80/glove80.uf2
+          cd glove80
+          sha256sum glove80.uf2 > glove80.uf2.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: glove80-firmware
-          path: glove80/glove80.uf2
+          path: |
+            glove80/glove80.uf2
+            glove80/glove80.uf2.sha256
+      - name: Publish firmware release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "glove80-${GITHUB_SHA}" \
+            glove80/glove80.uf2 \
+            glove80/glove80.uf2.sha256 \
+            --latest \
+            --target "${GITHUB_SHA}" \
+            --title "Glove80 firmware ${GITHUB_SHA::7}" \
+            --notes "Built from commit ${GITHUB_SHA}."

@@ -1,12 +1,22 @@
 from __future__ import annotations
 
+import hashlib
+import json
 import tempfile
 import unittest
+from io import BytesIO
 from pathlib import Path
+from urllib.error import URLError
 
 import trio
 
-from glove80_flash.cli import FlashError, Options, flash
+from glove80_flash.cli import (
+    RELEASE_API,
+    FlashError,
+    Options,
+    fetch_latest_firmware,
+    flash,
+)
 
 
 class FakeBackend:
@@ -113,6 +123,48 @@ class FlashTests(unittest.TestCase):
             self.assertEqual(
                 (left_mount / "glove80.uf2").read_bytes(), b"test firmware"
             )
+
+
+class FirmwareDownloadTests(unittest.TestCase):
+    def test_downloads_verifies_and_reuses_cached_firmware(self) -> None:
+        firmware = b"released firmware"
+        checksum = hashlib.sha256(firmware).hexdigest()
+        release = json_bytes(
+            {
+                "assets": [
+                    {
+                        "name": "glove80.uf2",
+                        "browser_download_url": "https://example.test/glove80.uf2",
+                    },
+                    {
+                        "name": "glove80.uf2.sha256",
+                        "browser_download_url": "https://example.test/checksum",
+                    },
+                ]
+            }
+        )
+        responses = {
+            RELEASE_API: release,
+            "https://example.test/glove80.uf2": firmware,
+            "https://example.test/checksum": f"{checksum}  glove80.uf2\n".encode(),
+        }
+
+        def opener(request, timeout):
+            return BytesIO(responses[request.full_url])
+
+        with tempfile.TemporaryDirectory() as directory:
+            cache = Path(directory)
+            downloaded = fetch_latest_firmware(cache, opener)
+            self.assertEqual(downloaded.read_bytes(), firmware)
+
+            def offline(request, timeout):
+                raise URLError("offline")
+
+            self.assertEqual(fetch_latest_firmware(cache, offline), downloaded)
+
+
+def json_bytes(value: object) -> bytes:
+    return json.dumps(value).encode()
 
 
 if __name__ == "__main__":

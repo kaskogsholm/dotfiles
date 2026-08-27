@@ -9,6 +9,8 @@ import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Protocol
+from urllib.error import URLError
+from urllib.request import Request, urlopen
 
 import pyudev
 import trio
@@ -17,6 +19,7 @@ BOOT_LABELS = {
     "right": "GLV80RHBOOT",
     "left": "GLV80LHBOOT",
 }
+RELEASE_API = "https://api.github.com/repos/kaskogsholm/dotfiles/releases/latest"
 
 
 class FlashError(Exception):
@@ -100,12 +103,8 @@ class UdevBackend:
 @dataclass(frozen=True)
 class Options:
     side: str | None
-    firmware: Path
+    firmware: Path | None
     timeout: float
-
-
-def default_firmware() -> Path:
-    return Path(__file__).resolve().parents[2] / "glove80.uf2"
 
 
 def parse_args(argv: list[str] | None = None) -> Options:
@@ -124,8 +123,7 @@ def parse_args(argv: list[str] | None = None) -> Options:
     parser.add_argument(
         "--firmware",
         type=Path,
-        default=default_firmware(),
-        help="UF2 to copy (default: the built firmware beside this project)",
+        help="use a local UF2 instead of the latest published firmware",
     )
     parser.add_argument(
         "--timeout",
@@ -136,7 +134,8 @@ def parse_args(argv: list[str] | None = None) -> Options:
     args = parser.parse_args(argv)
     if args.timeout <= 0:
         parser.error("--timeout must be positive")
-    return Options(args.side, args.firmware.expanduser().resolve(), args.timeout)
+    firmware = args.firmware.expanduser().resolve() if args.firmware else None
+    return Options(args.side, firmware, args.timeout)
 
 
 def sha256(path: Path) -> str:
@@ -145,6 +144,64 @@ def sha256(path: Path) -> str:
         while chunk := source.read(1024 * 1024):
             digest.update(chunk)
     return digest.hexdigest()
+
+
+def firmware_cache() -> Path:
+    cache_root = Path(os.environ.get("XDG_CACHE_HOME", Path.home() / ".cache"))
+    return cache_root / "glove80-flash"
+
+
+def fetch_latest_firmware(
+    cache: Path | None = None,
+    opener=urlopen,
+) -> Path:
+    cache = cache or firmware_cache()
+    cached_firmware = cache / "glove80.uf2"
+    cached_checksum = cache / "glove80.uf2.sha256"
+
+    def open_url(url: str):
+        return opener(Request(url, headers={"User-Agent": "glove80-flash"}), timeout=30)
+
+    try:
+        with open_url(RELEASE_API) as response:
+            release = json.load(response)
+        assets = {
+            asset["name"]: asset["browser_download_url"] for asset in release["assets"]
+        }
+        with open_url(assets["glove80.uf2.sha256"]) as response:
+            expected = response.read().decode().split()[0]
+
+        if cached_firmware.is_file() and sha256(cached_firmware) == expected:
+            cache.mkdir(parents=True, exist_ok=True)
+            cached_checksum.write_text(f"{expected}  glove80.uf2\n")
+            return cached_firmware
+
+        cache.mkdir(parents=True, exist_ok=True)
+        temporary = cache / "glove80.uf2.tmp"
+        with (
+            open_url(assets["glove80.uf2"]) as response,
+            temporary.open("wb") as output,
+        ):
+            shutil.copyfileobj(response, output)
+        actual = sha256(temporary)
+        if actual != expected:
+            temporary.unlink(missing_ok=True)
+            raise FlashError(
+                f"Downloaded firmware checksum mismatch: expected {expected}, got {actual}"
+            )
+        temporary.replace(cached_firmware)
+        cached_checksum.write_text(f"{expected}  glove80.uf2\n")
+        return cached_firmware
+    except (IndexError, KeyError, OSError, URLError, ValueError) as error:
+        if cached_firmware.is_file() and cached_checksum.is_file():
+            expected = cached_checksum.read_text().split()[0]
+            if sha256(cached_firmware) == expected:
+                print(
+                    f"Could not check for new firmware; using verified cache: {error}",
+                    file=sys.stderr,
+                )
+                return cached_firmware
+        raise FlashError(f"Could not obtain the latest firmware: {error}") from error
 
 
 async def flash_device(
@@ -185,7 +242,11 @@ async def flash_device(
 
 
 async def flash(options: Options, backend: DeviceBackend) -> None:
-    firmware = options.firmware
+    if options.firmware:
+        firmware = options.firmware
+    else:
+        print("Checking the latest published firmware...")
+        firmware = await trio.to_thread.run_sync(fetch_latest_firmware)
     if not firmware.is_file():
         raise FlashError(f"Firmware is not readable: {firmware}")
     if firmware.suffix.lower() != ".uf2":
