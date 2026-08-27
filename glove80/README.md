@@ -6,6 +6,8 @@ three deliberate changes:
 - The unused left `Layer` thumb momentarily activates `Symbols`.
 - `Magic+P` enters a direct-key `Gaming` layer.
 - In Gaming, the left `Layer` thumb is Space and tapping `Magic` returns to Base.
+- Base uses very dim solid cobalt lighting; Symbols doubles its brightness.
+- Gaming uses the slowest breathing effect in burnt orange.
 
 Base and the remaining thumb bindings retain their factory behavior. Every
 thumb key on Symbols is transparent.
