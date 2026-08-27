@@ -21,3 +21,4 @@
   - [. "$HOME/.cargo/env"]
   - [rustup update]
   - [cargo install --force yazi-build]
+  - [pipx install --force --editable "$HOME/dotfiles/glove80", Installing Glove80 flashing utility]

@@ -37,14 +37,49 @@ With Docker installed:
 
 The generated `glove80.uf2` is intentionally ignored by Git.
 
+Dotbot installs the flashing utility as an editable `pipx` package, so the
+`glove80-flash` command always runs the version in this directory.
+
 Without Docker, push the configuration and run the repository's **Build
 Glove80 firmware** GitHub Actions workflow. Its `glove80-firmware` artifact
 contains the combined UF2 for both halves.
 
 ## Flash Safely
 
-Have a spare keyboard available. Build and retain both the factory firmware
-and this custom firmware before flashing.
+Build and retain both the factory firmware and this custom firmware before
+flashing. The `glove80-flash` watcher lets you start each copy before putting a
+half into bootloader mode, so no keyboard input is needed during the flash.
+
+Flash the right half first:
+
+```sh
+glove80-flash right
+```
+
+Then switch off the right half, and flash the left:
+
+```sh
+glove80-flash left
+```
+
+For each command, the watcher prints the firmware checksum and waits five
+minutes for the exact bootloader label. While it is waiting:
+
+- Right: hold physical `I + PgDn` and switch the right half on.
+- Left: hold physical `Magic + E` and switch the left half on.
+
+The Trio-based watcher listens to udev's netlink file descriptor, mounts the
+drive if required, copies the firmware, syncs the file system, and exits. It
+does not poll, and it never uses `sudo` or `dd`.
+
+To restore a factory image, use the same process with an explicit file:
+
+```sh
+glove80-flash --firmware ~/Downloads/factory-default.uf2 right
+glove80-flash --firmware ~/Downloads/factory-default.uf2 left
+```
+
+Manual equivalent:
 
 1. Connect the right half over USB-C and enter its bootloader.
 2. Copy `glove80.uf2` to `GLV80RHBOOT`.

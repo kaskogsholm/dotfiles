@@ -1,2 +1,4 @@
 glove80.uf2
 result
+__pycache__/
+*.py[cod]
