@@ -6,7 +6,7 @@ these deliberate behavior changes:
 - The unused left `Layer` thumb momentarily activates `Symbols`.
 - `Magic+P` enters a direct-key `Gaming` layer.
 - In Gaming, the left `Layer` thumb is Space and tapping `Magic` returns to Base.
-- RGB lighting is disabled to maximize battery life.
+- Stock RGB controls remain available; the custom layers do not change lighting.
 
 Base and the remaining thumb bindings retain their factory behavior. Every
 thumb key on Symbols is transparent.
