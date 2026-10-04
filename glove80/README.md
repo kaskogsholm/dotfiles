@@ -6,11 +6,7 @@ these deliberate behavior changes:
 - The unused left `Layer` thumb momentarily activates `Symbols`.
 - `Magic+P` enters a direct-key `Gaming` layer.
 - In Gaming, the left `Layer` thumb is Space and tapping `Magic` returns to Base.
-- Base and Symbols use very dim solid cobalt lighting.
-- Gaming uses dim solid red lighting.
-
-ZMK persists RGB state across firmware updates. If Base remains dark after the
-first flash, enter and exit Gaming once to initialize the cobalt profile.
+- RGB lighting is disabled to maximize battery life.
 
 Base and the remaining thumb bindings retain their factory behavior. Every
 thumb key on Symbols is transparent.
